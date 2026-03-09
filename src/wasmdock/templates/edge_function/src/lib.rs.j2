@@ -1,0 +1,78 @@
+use spin_sdk::http::{IntoResponse, Request, Response};
+use spin_sdk::http_component;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct EdgeResponse {
+    status: &'static str,
+    handler: &'static str,
+    path: String,
+    query: Vec<(String, String)>,
+    headers_received: usize,
+}
+
+#[derive(Serialize)]
+struct HealthCheck {
+    status: &'static str,
+    service: &'static str,
+    variant: &'static str,
+}
+
+/// Lightweight edge-computing request handler.
+///
+/// Designed for sub-millisecond cold starts at the CDN edge.
+/// Parses the inbound request, applies minimal logic, and returns
+/// a JSON response -- representative of real edge function workloads
+/// such as A/B routing, header injection, or geo-based redirects.
+#[http_component]
+fn handle_request(req: Request) -> anyhow::Result<impl IntoResponse> {
+    let path = req.path().to_string();
+
+    if path == "/health" {
+        let body = serde_json::to_vec(&HealthCheck {
+            status: "ok",
+            service: "{{ project_name }}",
+            variant: "edge-function",
+        })?;
+        return Ok(Response::builder()
+            .status(200)
+            .header("content-type", "application/json")
+            .header("x-served-by", "wasmdock-edge")
+            .body(body)
+            .build());
+    }
+
+    let query_pairs = parse_query(req.query());
+    let headers_received = req.headers().count();
+
+    let resp = EdgeResponse {
+        status: "processed",
+        handler: "{{ project_name }}",
+        path,
+        query: query_pairs,
+        headers_received,
+    };
+
+    let body = serde_json::to_vec(&resp)?;
+    Ok(Response::builder()
+        .status(200)
+        .header("content-type", "application/json")
+        .header("x-served-by", "wasmdock-edge")
+        .header("cache-control", "public, max-age=60")
+        .body(body)
+        .build())
+}
+
+fn parse_query(raw: &str) -> Vec<(String, String)> {
+    if raw.is_empty() {
+        return Vec::new();
+    }
+    raw.split('&')
+        .filter_map(|pair| {
+            let mut parts = pair.splitn(2, '=');
+            let key = parts.next()?.to_string();
+            let value = parts.next().unwrap_or("").to_string();
+            Some((key, value))
+        })
+        .collect()
+}

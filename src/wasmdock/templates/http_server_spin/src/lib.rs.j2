@@ -1,0 +1,66 @@
+use spin_sdk::http::{IntoResponse, Request, Response};
+use spin_sdk::http_component;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct HealthResponse {
+    status: &'static str,
+    service: &'static str,
+    version: &'static str,
+}
+
+#[derive(Serialize)]
+struct EchoResponse {
+    method: String,
+    path: String,
+    message: String,
+}
+
+/// Handle incoming HTTP requests.
+///
+/// Routes:
+///   GET /health  -> health check JSON
+///   GET /        -> welcome message
+///   *            -> echo request details
+#[http_component]
+fn handle_request(req: Request) -> anyhow::Result<impl IntoResponse> {
+    let path = req.path();
+    let method = req.method().to_string();
+
+    match (method.as_str(), path) {
+        ("GET", "/health") => {
+            let body = serde_json::to_vec(&HealthResponse {
+                status: "ok",
+                service: "{{ project_name }}",
+                version: "0.1.0",
+            })?;
+            Ok(Response::builder()
+                .status(200)
+                .header("content-type", "application/json")
+                .body(body)
+                .build())
+        }
+        ("GET", "/") => {
+            let body = serde_json::to_vec(&serde_json::json!({
+                "message": "Hello from {{ project_name }}! Powered by Spin + WasmDock.",
+            }))?;
+            Ok(Response::builder()
+                .status(200)
+                .header("content-type", "application/json")
+                .body(body)
+                .build())
+        }
+        _ => {
+            let body = serde_json::to_vec(&EchoResponse {
+                method,
+                path: path.to_string(),
+                message: "Echo from {{ project_name }}".to_string(),
+            })?;
+            Ok(Response::builder()
+                .status(200)
+                .header("content-type", "application/json")
+                .body(body)
+                .build())
+        }
+    }
+}

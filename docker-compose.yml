@@ -1,0 +1,39 @@
+# WasmDock development environment
+#
+# Usage:
+#   docker compose up dev        # interactive development shell
+#   docker compose run test      # run the test suite
+#   docker compose run lint      # run linters
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    entrypoint: ["pytest", "--cov=wasmdock", "--cov-report=term-missing", "-v"]
+
+  lint:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: /bin/bash
+    command: ["-c", "ruff check src/ tests/ && ruff format --check src/ tests/ && mypy src/"]

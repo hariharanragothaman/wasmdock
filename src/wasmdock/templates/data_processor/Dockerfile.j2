@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+# WasmDock: Data processor -- multi-stage build
+# Runtime: {{ runtime }} ({{ runtime_containerd }})
+
+FROM --platform=$BUILDPLATFORM rust:1.79-slim AS build
+
+RUN rustup target add {{ rust_target }}
+
+WORKDIR /src
+COPY Cargo.toml ./
+COPY src/ ./src/
+
+RUN cargo build --target {{ rust_target }} --release
+
+# -------------------------------------------------------------------
+# Minimal WASM image
+# -------------------------------------------------------------------
+FROM scratch
+
+COPY --from=build /src/target/{{ rust_target }}/release/{{ project_name_snake }}.wasm /{{ project_name_snake }}.wasm
+
+ENTRYPOINT ["/{{ project_name_snake }}.wasm"]

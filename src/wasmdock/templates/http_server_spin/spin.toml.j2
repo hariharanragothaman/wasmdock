@@ -1,0 +1,17 @@
+spin_manifest_version = 2
+
+[application]
+name = "{{ project_name }}"
+version = "0.1.0"
+authors = ["WasmDock"]
+description = "HTTP service built with WasmDock and Spin"
+
+[[trigger.http]]
+route = "/..."
+component = "{{ project_name_snake }}"
+
+[component.{{ project_name_snake }}]
+source = "target/{{ rust_target }}/release/{{ project_name_snake }}.wasm"
+[component.{{ project_name_snake }}.build]
+command = "cargo build --target {{ rust_target }} --release"
+watch = ["src/**/*.rs", "Cargo.toml"]

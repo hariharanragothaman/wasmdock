@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wasmdock"
+version = "0.1.0"
+description = "Docker-Native WASM Development Toolkit"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Hariharan Ragothaman" },
+]
+keywords = ["wasm", "webassembly", "docker", "containers", "wasi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Containers",
+]
+dependencies = [
+    "docker>=7.0.0",
+    "typer[all]>=0.12.0",
+    "rich>=13.0.0",
+    "jinja2>=3.1.0",
+    "plotly>=5.18.0",
+    "ruamel.yaml>=0.18.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+
+[project.scripts]
+wasmdock = "wasmdock.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/hariharanragothaman/wasmdock"
+Documentation = "https://github.com/hariharanragothaman/wasmdock#readme"
+Repository = "https://github.com/hariharanragothaman/wasmdock"
+Issues = "https://github.com/hariharanragothaman/wasmdock/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wasmdock"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/wasmdock/templates" = "wasmdock/templates"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["wasmdock"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers"
+markers = [
+    "integration: marks tests requiring Docker daemon",
+]

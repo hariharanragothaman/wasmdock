@@ -1,0 +1,108 @@
+use serde::{Deserialize, Serialize};
+use std::io::{self, BufRead, Write};
+
+#[derive(Deserialize)]
+struct InputRecord {
+    #[serde(default)]
+    id: u64,
+    #[serde(default)]
+    value: f64,
+    #[serde(default)]
+    label: String,
+}
+
+#[derive(Serialize)]
+struct OutputRecord {
+    id: u64,
+    original_value: f64,
+    processed_value: f64,
+    label: String,
+    category: &'static str,
+}
+
+#[derive(Serialize)]
+struct Summary {
+    total_records: usize,
+    sum: f64,
+    mean: f64,
+    min: f64,
+    max: f64,
+}
+
+/// WASI data-processing pipeline.
+///
+/// Reads newline-delimited JSON from stdin, transforms each record,
+/// and writes results to stdout.  After all records are processed a
+/// summary line is emitted to stderr.
+fn main() {
+    let stdin = io::stdin();
+    let stdout = io::stdout();
+    let mut out = io::BufWriter::new(stdout.lock());
+
+    let mut count: usize = 0;
+    let mut sum: f64 = 0.0;
+    let mut min: f64 = f64::MAX;
+    let mut max: f64 = f64::MIN;
+
+    for line in stdin.lock().lines() {
+        let line = match line {
+            Ok(l) if !l.trim().is_empty() => l,
+            _ => continue,
+        };
+
+        let record: InputRecord = match serde_json::from_str(&line) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("skipping invalid record: {e}");
+                continue;
+            }
+        };
+
+        let processed_value = record.value * 1.15; // apply 15% uplift
+        let category = categorize(record.value);
+
+        let output = OutputRecord {
+            id: record.id,
+            original_value: record.value,
+            processed_value,
+            label: if record.label.is_empty() {
+                format!("record-{}", record.id)
+            } else {
+                record.label
+            },
+            category,
+        };
+
+        serde_json::to_writer(&mut out, &output).unwrap();
+        writeln!(out).unwrap();
+
+        sum += processed_value;
+        if processed_value < min {
+            min = processed_value;
+        }
+        if processed_value > max {
+            max = processed_value;
+        }
+        count += 1;
+    }
+
+    if count > 0 {
+        let summary = Summary {
+            total_records: count,
+            sum,
+            mean: sum / count as f64,
+            min,
+            max,
+        };
+        eprintln!("{}", serde_json::to_string(&summary).unwrap());
+    }
+}
+
+fn categorize(value: f64) -> &'static str {
+    match value as i64 {
+        i64::MIN..=0 => "zero_or_negative",
+        1..=100 => "low",
+        101..=1000 => "medium",
+        _ => "high",
+    }
+}
