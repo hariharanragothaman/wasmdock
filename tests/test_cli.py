@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from wasmdock import __version__
 from wasmdock.cli import app
@@ -32,6 +36,35 @@ class TestMetaCommands:
         result = runner.invoke(app, ["init", "x", "--runtime", "nope"])
         assert result.exit_code == 1
         assert "Unknown runtime" in result.stdout
+
+    def test_init_rejects_unknown_template(self) -> None:
+        result = runner.invoke(app, ["init", "x", "--template", "nope"])
+        assert result.exit_code == 1
+        assert "Unknown template" in result.stdout
+
+    def test_init_infers_runtime_from_template(self, tmp_path: Path) -> None:
+        result = runner.invoke(
+            app, ["init", "spinapp", "--template", "http-server-spin", "-o", str(tmp_path)]
+        )
+        assert result.exit_code == 0
+        assert (tmp_path / "spinapp" / "wasmdock.yml").read_text().find("spin") != -1
+
+    def test_init_rejects_incompatible_runtime(self, tmp_path: Path) -> None:
+        result = runner.invoke(
+            app,
+            [
+                "init",
+                "x",
+                "--template",
+                "http-server-spin",
+                "--runtime",
+                "wasmtime",
+                "-o",
+                str(tmp_path),
+            ],
+        )
+        assert result.exit_code == 1
+        assert "targets the 'spin' runtime" in result.stdout
 
 
 class TestPull:

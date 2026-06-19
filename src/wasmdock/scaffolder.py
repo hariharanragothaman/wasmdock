@@ -33,6 +33,15 @@ class Scaffolder:
         project-specific values, and writes a ``wasmdock.yml`` config.
         """
         template_dir = get_template_dir(template)
+
+        expected_runtime = TEMPLATE_REGISTRY[template]["runtime"]
+        if runtime.value != expected_runtime:
+            raise ValueError(
+                f"Template '{template}' targets the '{expected_runtime}' runtime, "
+                f"but '{runtime.value}' was requested. Re-run with "
+                f"--runtime {expected_runtime} (or omit --runtime to use the default)."
+            )
+
         project_dir = Path(output_dir).resolve() / name
 
         if project_dir.exists():
