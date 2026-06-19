@@ -39,6 +39,9 @@ coverage.xml
 *.tar.gz
 *.whl
 
+# MkDocs site output
+site/
+
 # OS
 .DS_Store
 Thumbs.db

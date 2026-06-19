@@ -9,6 +9,20 @@
 
 ---
 
+## Motivation
+
+Docker's native WebAssembly support is one of the most exciting recent additions
+to the container ecosystem, but getting from "enabled in Docker Desktop" to a
+working, benchmarked WASM service still means wrestling with cross-compilation
+toolchains, containerd shims, the `wasi/wasm` platform, and OCI packaging.
+
+**WasmDock collapses that into a handful of commands.** It scaffolds idiomatic
+projects, builds minimal `scratch`-based WASM images, runs them through the right
+runtime shim, and quantifies the cold-start / size / memory wins against a Linux
+baseline — so you can focus on the workload instead of the plumbing.
+
+Full documentation: **https://hariharanragothaman.github.io/wasmdock/**
+
 ## Why WASM Containers?
 
 Docker Desktop 4.15+ supports running WebAssembly workloads natively alongside Linux containers. WASM containers offer dramatic improvements over traditional containers:

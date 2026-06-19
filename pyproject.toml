@@ -43,6 +43,9 @@ dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
 ]
+docs = [
+    "mkdocs-material>=9.5.0",
+]
 
 [project.scripts]
 wasmdock = "wasmdock.cli:app"
