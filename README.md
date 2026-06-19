@@ -46,6 +46,9 @@ pip install -e ".[dev]"
 ## Quick Start
 
 ```bash
+# Verify your Docker environment is WASM-ready
+wasmdock doctor
+
 # Scaffold a new WASM HTTP service
 wasmdock init my-service --runtime wasmtime --template http-server-wasmtime
 
@@ -56,9 +59,19 @@ wasmdock build
 # Run the container
 wasmdock run --port 8080
 
+# Inspect logs and stop it
+wasmdock logs --tail 50
+wasmdock stop
+
 # Benchmark against a Linux baseline
 wasmdock bench --iterations 50 --compare-linux nginx:alpine --output report.html
 ```
+
+> Prefer a ready-to-build project? See [`examples/hello-wasm`](examples/hello-wasm),
+> which ships the exact output of `wasmdock init` plus a `Makefile` (`make doctor`,
+> `make build`, `make run`, `make bench`).
+
+You can also invoke the CLI as a module: `python -m wasmdock --help`.
 
 ## CLI Reference
 
@@ -90,6 +103,23 @@ Start the WASM container with the correct runtime shim.
 | `--port`       | `8080`  | Host port to bind        |
 | `--project-dir`| `.`     | Path to wasmdock project |
 
+### `wasmdock stop`
+
+Stop and remove the container started for the project (resolved from `wasmdock.yml`).
+
+| Option         | Default | Description              |
+|----------------|---------|--------------------------|
+| `--project-dir`| `.`     | Path to wasmdock project |
+
+### `wasmdock logs`
+
+Show recent logs from the project's running container.
+
+| Option         | Default | Description                      |
+|----------------|---------|----------------------------------|
+| `--tail`       | `100`   | Number of trailing log lines     |
+| `--project-dir`| `.`     | Path to wasmdock project         |
+
 ### `wasmdock bench`
 
 Run benchmarks on the WASM container.
@@ -107,6 +137,14 @@ Push the WASM image to an OCI-compliant registry.
 
 ```bash
 wasmdock push ghcr.io/youruser/my-service:latest
+```
+
+### `wasmdock pull <reference>`
+
+Pull a WASM image from an OCI-compliant registry (using the `wasi/wasm` platform).
+
+```bash
+wasmdock pull ghcr.io/youruser/my-service:latest
 ```
 
 ### `wasmdock templates`
@@ -127,6 +165,17 @@ List all available project templates.
 ### `wasmdock runtimes`
 
 List all supported WASM runtimes with their containerd shim identifiers.
+
+### `wasmdock doctor`
+
+Diagnose whether the local Docker environment is ready for WASM containers. Checks
+that the Docker daemon is reachable, the containerd image store is enabled, and which
+WASM runtime shims are installed. Exits non-zero if a required check fails, so it can
+gate CI or a setup script.
+
+```bash
+wasmdock doctor
+```
 
 ## Template Gallery
 
@@ -197,11 +246,13 @@ The `--output` flag generates an interactive HTML report with Plotly bar charts 
 ```
 wasmdock
   |-- cli.py           Typer CLI with subcommands
+  |-- __main__.py       `python -m wasmdock` entry point
   |-- scaffolder.py     Jinja2 template rendering engine
   |-- builder.py        Docker BuildKit pipeline (cross-compile + package)
   |-- runner.py         Container lifecycle management
   |-- benchmarker.py    Cold-start, memory, throughput benchmarking
   |-- registry.py       OCI registry push/pull
+  |-- doctor.py         Docker WASM environment diagnostics
   |-- models.py         Core dataclasses and runtime enum
   |-- config.py         YAML configuration loading
   |-- templates/        Jinja2 project templates

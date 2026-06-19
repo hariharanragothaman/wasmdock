@@ -1,0 +1,60 @@
+use serde::Serialize;
+use std::io::{self, Read, Write};
+
+#[derive(Serialize)]
+struct HealthResponse {
+    status: &'static str,
+    service: &'static str,
+    version: &'static str,
+}
+
+#[derive(Serialize)]
+struct WelcomeResponse {
+    message: String,
+    runtime: &'static str,
+}
+
+/// A minimal WASI HTTP-style server for the Wasmtime runtime.
+///
+/// In Docker's WASM runtime integration the container shim handles
+/// the networking layer; this binary reads requests from stdin and
+/// writes HTTP responses to stdout, letting the shim proxy TCP traffic.
+fn main() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap_or_default();
+
+    let path = parse_request_path(&input);
+
+    let (status, body) = match path.as_str() {
+        "/health" => {
+            let resp = HealthResponse {
+                status: "ok",
+                service: "hello-wasm",
+                version: "0.1.0",
+            };
+            ("200 OK", serde_json::to_string_pretty(&resp).unwrap())
+        }
+        _ => {
+            let resp = WelcomeResponse {
+                message: format!("Hello from hello-wasm! Running on Wasmtime via WasmDock."),
+                runtime: "wasmtime",
+            };
+            ("200 OK", serde_json::to_string_pretty(&resp).unwrap())
+        }
+    };
+
+    let response = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
+        body.len(),
+    );
+
+    io::stdout().write_all(response.as_bytes()).unwrap();
+}
+
+fn parse_request_path(raw: &str) -> String {
+    raw.lines()
+        .next()
+        .and_then(|line| line.split_whitespace().nth(1))
+        .unwrap_or("/")
+        .to_string()
+}
