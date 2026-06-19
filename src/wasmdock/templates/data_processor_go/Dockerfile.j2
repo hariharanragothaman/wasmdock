@@ -8,14 +8,15 @@ WORKDIR /src
 COPY go.mod ./
 COPY main.go ./
 
-# Compile Go to a WASI Preview 1 module with TinyGo.
-RUN tinygo build -o /{{ project_name_snake }}.wasm -target=wasip1 .
+# Compile Go to a WASI Preview 1 module with TinyGo. Write into the work dir
+# (the TinyGo image runs as a non-root user that cannot write to /).
+RUN tinygo build -o /src/{{ project_name_snake }}.wasm -target=wasip1 .
 
 # -------------------------------------------------------------------
 # Minimal WASM image
 # -------------------------------------------------------------------
 FROM scratch
 
-COPY --from=build /{{ project_name_snake }}.wasm /{{ project_name_snake }}.wasm
+COPY --from=build /src/{{ project_name_snake }}.wasm /{{ project_name_snake }}.wasm
 
 ENTRYPOINT ["/{{ project_name_snake }}.wasm"]

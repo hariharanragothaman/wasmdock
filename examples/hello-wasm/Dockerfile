@@ -2,7 +2,7 @@
 # WasmDock: Wasmtime HTTP server -- multi-stage build
 # Runtime: wasmtime (io.containerd.wasmtime.v1)
 
-FROM --platform=$BUILDPLATFORM rust:1.79-slim AS build
+FROM --platform=$BUILDPLATFORM rust:1.86-slim AS build
 
 RUN rustup target add wasm32-wasip1
 
