@@ -249,6 +249,15 @@ A stdin/stdout data pipeline for batch processing workloads. Reads newline-delim
 wasmdock init my-pipeline --template data-processor --runtime wasmtime
 ```
 
+### Data Processor (Go / TinyGo)
+
+The same stdin/stdout pipeline, written in Go and compiled to WASI with TinyGo.
+Demonstrates a non-Rust toolchain end to end.
+
+```bash
+wasmdock init my-go-pipeline --template data-processor-go
+```
+
 ### Edge Function
 
 A lightweight request handler optimized for edge computing with sub-millisecond cold starts.

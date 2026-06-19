@@ -1,0 +1,28 @@
+// {{ project_name }} -- a WASM stdin/stdout data processor (Go via TinyGo).
+//
+// Reads text from stdin line by line, transforms each line, and writes the
+// result to stdout. A summary is written to stderr. This stdin/stdout model
+// runs cleanly under Docker's wasmtime shim.
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	count := 0
+	for scanner.Scan() {
+		count++
+		line := strings.TrimSpace(scanner.Text())
+		fmt.Printf("%d: %s\n", count, strings.ToUpper(line))
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "read error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stderr, "processed %d line(s)\n", count)
+}

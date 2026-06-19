@@ -53,9 +53,11 @@ def init(
         ),
     ] = None,
     language: Annotated[
-        str,
-        typer.Option("--language", "-l", help="Source language"),
-    ] = "rust",
+        str | None,
+        typer.Option(
+            "--language", "-l", help="Source language (defaults to the template's language)"
+        ),
+    ] = None,
     template: Annotated[
         str,
         typer.Option(
@@ -78,9 +80,11 @@ def init(
         console.print(f"[red]Unknown template '{template}'. Available: {available}[/red]")
         raise typer.Exit(1)
 
-    # When no runtime is given, infer the one the template targets.
+    # When no runtime/language is given, infer from the template.
     if runtime is None:
         runtime = TEMPLATE_REGISTRY[template]["runtime"]
+    if language is None:
+        language = TEMPLATE_REGISTRY[template]["language"]
 
     try:
         wasm_runtime = WasmRuntime(runtime)

@@ -25,6 +25,12 @@ TEMPLATE_REGISTRY: dict[str, dict[str, str]] = {
         "runtime": "wasmtime",
         "language": "rust",
     },
+    "data-processor-go": {
+        "dir": "data_processor_go",
+        "description": "Stdin/stdout data processor written in Go (TinyGo)",
+        "runtime": "wasmtime",
+        "language": "go",
+    },
     "edge-function": {
         "dir": "edge_function",
         "description": "Lightweight edge computing request handler",
