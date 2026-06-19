@@ -38,6 +38,13 @@ pytest -v
 pytest --cov=wasmdock --cov-report=term-missing
 ```
 
+Integration tests that drive a real Docker daemon are **opt-in** (excluded from
+the default run). On a machine with Docker + WASM enabled:
+
+```bash
+pytest -m integration
+```
+
 ### Linting and Formatting
 
 WasmDock uses [Ruff](https://docs.astral.sh/ruff/) for linting and formatting, and [mypy](https://mypy-lang.org/) for type checking.

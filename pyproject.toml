@@ -103,7 +103,8 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra -q --strict-markers"
+# Integration tests are opt-in: run them with `pytest -m integration`.
+addopts = "-ra -q --strict-markers -m 'not integration'"
 markers = [
-    "integration: marks tests requiring Docker daemon",
+    "integration: marks tests requiring a Docker daemon with WASM support",
 ]
