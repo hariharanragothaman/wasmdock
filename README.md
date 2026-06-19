@@ -32,16 +32,18 @@ WasmDock gives you a batteries-included toolkit to take advantage of these impro
 
 ## Installation
 
-```bash
-pip install wasmdock
-```
-
-Or from source:
+Install from source (recommended while the first PyPI release is being prepared):
 
 ```bash
 git clone https://github.com/hariharanragothaman/wasmdock.git
 cd wasmdock
 pip install -e ".[dev]"
+```
+
+Once published to PyPI:
+
+```bash
+pip install wasmdock
 ```
 
 ## Quick Start

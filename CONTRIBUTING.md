@@ -20,6 +20,17 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
+### Pre-commit hooks
+
+Install the git hooks so linting, formatting, and type checks run automatically
+before each commit (mirrors CI):
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files   # optional: run against the whole tree
+```
+
 ### Running Tests
 
 ```bash
