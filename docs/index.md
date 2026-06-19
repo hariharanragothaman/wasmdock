@@ -15,11 +15,15 @@ pip install wasmdock
 ### Create Your First WASM Project
 
 ```bash
+wasmdock doctor    # verify Docker WASM support is enabled
 wasmdock init my-service --runtime wasmtime --template http-server-wasmtime
 cd my-service
 wasmdock build
 wasmdock run
 ```
+
+A ready-to-build version of this project lives in
+[`examples/hello-wasm`](https://github.com/hariharanragothaman/wasmdock/tree/main/examples/hello-wasm).
 
 ## Core Concepts
 
@@ -56,18 +60,35 @@ WasmDock ships with project templates for common workloads:
 
 ## CLI Reference
 
-See the main [README](https://github.com/hariharanragothaman/wasmdock#cli-reference) for a complete CLI reference.
+| Command | Description |
+|---------|-------------|
+| `wasmdock doctor` | Check the Docker environment is WASM-ready |
+| `wasmdock init <name>` | Scaffold a new WASM project from a template |
+| `wasmdock build` | Cross-compile to WASM and package as a Docker image |
+| `wasmdock run` | Start the WASM container |
+| `wasmdock logs` | Show recent container logs |
+| `wasmdock stop` | Stop and remove the container |
+| `wasmdock bench` | Benchmark vs a Linux baseline |
+| `wasmdock push <ref>` | Push the image to an OCI registry |
+| `wasmdock pull <ref>` | Pull a WASM image from an OCI registry |
+| `wasmdock templates` | List available templates |
+| `wasmdock runtimes` | List supported runtimes |
+
+The CLI is also available as `python -m wasmdock`. See the main
+[README](https://github.com/hariharanragothaman/wasmdock#cli-reference) for full option tables.
 
 ## Architecture
 
 ```
 wasmdock/
   cli.py          -- Typer CLI entrypoint
+  __main__.py     -- `python -m wasmdock` entry point
   scaffolder.py   -- Jinja2 template rendering
   builder.py      -- Docker build pipeline (cross-compile + package)
   runner.py       -- Container lifecycle management
   benchmarker.py  -- Cold-start, memory, throughput benchmarking
   registry.py     -- OCI push/pull operations
+  doctor.py       -- Docker WASM environment diagnostics
   models.py       -- Core dataclasses and enums
   config.py       -- Configuration loading
   templates/      -- Jinja2 project templates

@@ -1,0 +1,4 @@
+name: hello-wasm
+runtime: wasmtime
+language: rust
+template: http-server-wasmtime
