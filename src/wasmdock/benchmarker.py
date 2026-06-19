@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import statistics
 import time
 import urllib.error
@@ -80,7 +79,7 @@ class Benchmarker:
         try:
             container = self._client.containers.get(container_id)
             stats = container.stats(stream=False)
-            usage_bytes = stats["memory_stats"].get("usage", 0)
+            usage_bytes = float(stats["memory_stats"].get("usage", 0))
             return round(usage_bytes / (1024 * 1024), 2)
         except (DockerException, KeyError):
             return 0.0
@@ -187,9 +186,7 @@ class Benchmarker:
 
         console.print(f"[bold]Benchmarking Linux baseline: {linux_image}[/bold]")
 
-        linux_cold_starts = self._benchmark_linux_cold_start(
-            linux_image, iterations, port
-        )
+        linux_cold_starts = self._benchmark_linux_cold_start(linux_image, iterations, port)
         linux_cold_median = statistics.median(linux_cold_starts) if linux_cold_starts else 0.0
 
         linux_memory = 0.0
@@ -264,7 +261,7 @@ class Benchmarker:
 
         positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
 
-        for (wval, lval), (row, col) in zip(pairs, positions):
+        for (wval, lval), (row, col) in zip(pairs, positions, strict=True):
             fig.add_trace(
                 go.Bar(
                     x=["WASM", "Linux"],
@@ -278,8 +275,7 @@ class Benchmarker:
 
         fig.update_layout(
             title_text=(
-                f"WasmDock Benchmark: {wasm.runtime} vs Linux "
-                f"({wasm.iterations} iterations)"
+                f"WasmDock Benchmark: {wasm.runtime} vs Linux ({wasm.iterations} iterations)"
             ),
             template="plotly_dark",
             height=700,
@@ -377,9 +373,7 @@ class Benchmarker:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             try:
-                req = urllib.request.Request(
-                    f"http://localhost:{port}/", method="GET"
-                )
+                req = urllib.request.Request(f"http://localhost:{port}/", method="GET")
                 with urllib.request.urlopen(req, timeout=2):
                     return
             except (urllib.error.URLError, OSError):
@@ -388,6 +382,6 @@ class Benchmarker:
     def _image_size_mb(self, image_name: str) -> float:
         try:
             image = self._client.images.get(image_name)
-            return round(image.attrs.get("Size", 0) / (1024 * 1024), 2)
+            return round(float(image.attrs.get("Size", 0)) / (1024 * 1024), 2)
         except DockerException:
             return 0.0

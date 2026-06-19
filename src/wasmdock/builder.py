@@ -49,7 +49,7 @@ class Builder:
             task = progress.add_task(f"Building {image_name}...", total=None)
 
             try:
-                image, build_logs = self._client.images.build(
+                image, _build_logs = self._client.images.build(
                     path=str(project.project_dir),
                     tag=image_name,
                     dockerfile="Dockerfile",
@@ -58,11 +58,7 @@ class Builder:
                 )
             except BuildError as exc:
                 elapsed = time.monotonic() - start
-                error_lines = [
-                    line.get("error", "")
-                    for line in exc.build_log
-                    if line.get("error")
-                ]
+                error_lines = [line.get("error", "") for line in exc.build_log if line.get("error")]
                 return BuildResult(
                     success=False,
                     image_name=image_name,
@@ -117,6 +113,6 @@ class Builder:
         """Return image size in MB."""
         try:
             image = self._client.images.get(image_name)
-            return round(image.attrs.get("Size", 0) / (1024 * 1024), 2)
+            return round(float(image.attrs.get("Size", 0)) / (1024 * 1024), 2)
         except DockerException:
             return 0.0

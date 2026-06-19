@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ruamel.yaml import YAML
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from wasmdock.models import WasmRuntime
 

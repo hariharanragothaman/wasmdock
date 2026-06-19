@@ -39,7 +39,6 @@ def get_template_dir(template_name: str) -> Path:
     entry = TEMPLATE_REGISTRY.get(template_name)
     if entry is None:
         raise ValueError(
-            f"Unknown template '{template_name}'. "
-            f"Available: {', '.join(TEMPLATE_REGISTRY)}"
+            f"Unknown template '{template_name}'. Available: {', '.join(TEMPLATE_REGISTRY)}"
         )
     return TEMPLATES_DIR / entry["dir"]

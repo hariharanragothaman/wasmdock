@@ -11,7 +11,7 @@ from rich.console import Console
 
 from wasmdock.config import save_project_config
 from wasmdock.models import WasmProject, WasmRuntime
-from wasmdock.templates import TEMPLATE_REGISTRY, TEMPLATES_DIR, get_template_dir
+from wasmdock.templates import TEMPLATE_REGISTRY, get_template_dir
 
 console = Console()
 
@@ -43,12 +43,15 @@ class Scaffolder:
         context = self._build_context(name, runtime, language, template)
         self._render_template_tree(template_dir, project_dir, context)
 
-        save_project_config(project_dir, {
-            "name": name,
-            "runtime": runtime.value,
-            "language": language,
-            "template": template,
-        })
+        save_project_config(
+            project_dir,
+            {
+                "name": name,
+                "runtime": runtime.value,
+                "language": language,
+                "template": template,
+            },
+        )
 
         project = WasmProject(
             name=name,

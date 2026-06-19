@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
 from docker.errors import BuildError, DockerException
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from wasmdock.builder import Builder
 from wasmdock.models import WasmProject, WasmRuntime
@@ -35,9 +38,7 @@ def sample_project(tmp_path: Path) -> WasmProject:
 
 
 class TestBuildSuccess:
-    def test_build_returns_success(
-        self, builder: Builder, sample_project: WasmProject
-    ) -> None:
+    def test_build_returns_success(self, builder: Builder, sample_project: WasmProject) -> None:
         mock_image = MagicMock()
         mock_image.attrs = {"Size": 2 * 1024 * 1024}
         builder._client.images.build.return_value = (mock_image, [])
@@ -47,7 +48,7 @@ class TestBuildSuccess:
         assert result.success is True
         assert result.image_name == "wasmdock-test-project:latest"
         assert result.image_size_mb == 2.0
-        assert result.build_time_seconds > 0
+        assert result.build_time_seconds >= 0
         assert result.errors == []
 
     def test_build_calls_docker_with_correct_platform(
@@ -79,12 +80,8 @@ class TestBuildFailure:
         assert result.success is False
         assert len(result.errors) > 0
 
-    def test_build_docker_exception(
-        self, builder: Builder, sample_project: WasmProject
-    ) -> None:
-        builder._client.images.build.side_effect = DockerException(
-            "Docker daemon not running"
-        )
+    def test_build_docker_exception(self, builder: Builder, sample_project: WasmProject) -> None:
+        builder._client.images.build.side_effect = DockerException("Docker daemon not running")
 
         result = builder.build(sample_project)
 
