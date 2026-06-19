@@ -38,6 +38,11 @@ class Runner:
         """
         image_name = project.image_name
         runtime_str = project.runtime.containerd_runtime
+        container_name = f"wasmdock-{project.name}"
+
+        # Make `run` idempotent: drop any prior container with the same name
+        # so re-running does not fail with a name conflict.
+        self._remove_existing(container_name)
 
         try:
             container = self._client.containers.run(
@@ -46,7 +51,7 @@ class Runner:
                 ports={"8080/tcp": port},
                 platform="wasi/wasm",
                 runtime=runtime_str,
-                name=f"wasmdock-{project.name}",
+                name=container_name,
                 remove=False,
             )
         except DockerException as exc:
@@ -97,6 +102,38 @@ class Runner:
         """Stop the container associated with a project directory."""
         self.stop(self._container_name_from_dir(project_dir))
 
+    def list_containers(self) -> list[dict[str, str]]:
+        """Return metadata for every WasmDock-managed container."""
+        containers = self._client.containers.list(all=True, filters={"name": "wasmdock-"})
+        rows: list[dict[str, str]] = []
+        for c in containers:
+            tags = c.image.tags if c.image else []
+            rows.append(
+                {
+                    "name": c.name,
+                    "status": c.status,
+                    "image": tags[0] if tags else c.attrs.get("Image", ""),
+                    "ports": self._format_ports(c.ports),
+                }
+            )
+        return rows
+
+    def clean_from_dir(self, project_dir: str = ".", remove_image: bool = False) -> None:
+        """Stop the project's container and optionally remove its image."""
+        path = Path(project_dir).resolve()
+        config = load_project_config(path)
+        if not config:
+            raise FileNotFoundError(f"No wasmdock.yml found in {path}")
+
+        self.stop(f"wasmdock-{config['name']}")
+        if remove_image:
+            image_name = f"wasmdock-{config['name']}:latest"
+            try:
+                self._client.images.remove(image_name, force=True)
+                console.print(f"[yellow]Removed image {image_name}[/yellow]")
+            except DockerException as exc:
+                console.print(f"[red]Could not remove image {image_name}: {exc}[/red]")
+
     def logs_from_dir(self, project_dir: str = ".", tail: int = 100) -> str:
         """Return logs for the container associated with a project directory."""
         return self.logs(self._container_name_from_dir(project_dir), tail=tail)
@@ -122,6 +159,32 @@ class Runner:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _remove_existing(self, name: str) -> None:
+        """Remove a container by name if it already exists (best effort)."""
+        try:
+            existing = self._client.containers.get(name)
+        except DockerException:
+            return
+        try:
+            existing.remove(force=True)
+            console.print(f"[dim]Replaced existing container {name}[/dim]")
+        except DockerException:
+            pass
+
+    @staticmethod
+    def _format_ports(ports: dict | None) -> str:
+        """Render Docker's port mapping dict as a compact host->container string."""
+        if not ports:
+            return ""
+        parts: list[str] = []
+        for container_port, bindings in ports.items():
+            if bindings:
+                host = bindings[0].get("HostPort", "")
+                parts.append(f"{host}->{container_port}")
+            else:
+                parts.append(container_port)
+        return ", ".join(parts)
 
     def _wait_for_ready(self, container_id: str) -> None:
         """Poll container status until it is running or timeout expires."""

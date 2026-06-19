@@ -97,7 +97,8 @@ Build the WASM module and package it as a Docker image.
 
 ### `wasmdock run`
 
-Start the WASM container with the correct runtime shim.
+Start the WASM container with the correct runtime shim. Re-running replaces any
+existing container for the project, so `run` is safe to invoke repeatedly.
 
 | Option         | Default | Description              |
 |----------------|---------|--------------------------|
@@ -120,6 +121,19 @@ Show recent logs from the project's running container.
 |----------------|---------|----------------------------------|
 | `--tail`       | `100`   | Number of trailing log lines     |
 | `--project-dir`| `.`     | Path to wasmdock project         |
+
+### `wasmdock ps`
+
+List WasmDock-managed containers (name, status, image, ports).
+
+### `wasmdock clean`
+
+Stop and remove the project's container, and optionally its image.
+
+| Option         | Default | Description                          |
+|----------------|---------|--------------------------------------|
+| `--images`     | `false` | Also remove the project's WASM image |
+| `--project-dir`| `.`     | Path to wasmdock project             |
 
 ### `wasmdock bench`
 

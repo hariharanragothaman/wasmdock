@@ -170,6 +170,54 @@ def logs(
         raise typer.Exit(1) from None
 
 
+# ── ps ──────────────────────────────────────────────────────────────
+
+
+@app.command()
+def ps() -> None:
+    """List WasmDock-managed containers."""
+    from wasmdock.runner import Runner
+
+    rows = Runner().list_containers()
+    if not rows:
+        console.print("No WasmDock containers found.")
+        return
+
+    table = Table(title="WasmDock Containers")
+    table.add_column("Name", style="cyan")
+    table.add_column("Status", style="green")
+    table.add_column("Image")
+    table.add_column("Ports", style="yellow")
+    for row in rows:
+        table.add_row(row["name"], row["status"], row["image"], row["ports"])
+    console.print(table)
+
+
+# ── clean ───────────────────────────────────────────────────────────
+
+
+@app.command()
+def clean(
+    images: Annotated[
+        bool,
+        typer.Option("--images", "-i", help="Also remove the project's WASM image"),
+    ] = False,
+    project_dir: Annotated[
+        str,
+        typer.Option("--project-dir", "-d", help="Path to wasmdock project"),
+    ] = ".",
+) -> None:
+    """Stop the project's container and optionally remove its image."""
+    from wasmdock.runner import Runner
+
+    runner = Runner()
+    try:
+        runner.clean_from_dir(project_dir, remove_image=images)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
+
+
 # ── bench ───────────────────────────────────────────────────────────
 
 

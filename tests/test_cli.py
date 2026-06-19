@@ -67,6 +67,43 @@ class TestStopLogs:
         assert "hello logs" in result.stdout
 
 
+class TestPsClean:
+    def test_ps_empty(self) -> None:
+        with patch("wasmdock.runner.Runner") as mock_runner_cls:
+            mock_runner_cls.return_value.list_containers.return_value = []
+            result = runner.invoke(app, ["ps"])
+        assert result.exit_code == 0
+        assert "No WasmDock containers" in result.stdout
+
+    def test_ps_lists_rows(self) -> None:
+        with patch("wasmdock.runner.Runner") as mock_runner_cls:
+            mock_runner_cls.return_value.list_containers.return_value = [
+                {
+                    "name": "wasmdock-demo",
+                    "status": "running",
+                    "image": "wasmdock-demo:latest",
+                    "ports": "8080->8080/tcp",
+                }
+            ]
+            result = runner.invoke(app, ["ps"])
+        assert result.exit_code == 0
+        assert "wasmdock-demo" in result.stdout
+
+    def test_clean_invokes_runner(self) -> None:
+        with patch("wasmdock.runner.Runner") as mock_runner_cls:
+            instance = mock_runner_cls.return_value
+            result = runner.invoke(app, ["clean", "--images", "-d", "/tmp/proj"])
+        assert result.exit_code == 0
+        instance.clean_from_dir.assert_called_once_with("/tmp/proj", remove_image=True)
+
+    def test_clean_missing_config_exits_nonzero(self) -> None:
+        with patch("wasmdock.runner.Runner") as mock_runner_cls:
+            instance = mock_runner_cls.return_value
+            instance.clean_from_dir.side_effect = FileNotFoundError("no wasmdock.yml")
+            result = runner.invoke(app, ["clean"])
+        assert result.exit_code == 1
+
+
 class TestDoctorCommand:
     def test_doctor_passes(self) -> None:
         with patch("wasmdock.doctor.Doctor") as mock_doctor_cls:
