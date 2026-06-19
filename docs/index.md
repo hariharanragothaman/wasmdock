@@ -31,14 +31,20 @@ A ready-to-build version of this project lives in
 
 Docker Desktop 4.15+ includes built-in support for running WebAssembly workloads alongside traditional Linux containers. Instead of packaging a full OS and userspace, a WASM container holds a single `.wasm` binary executed by a lightweight runtime shim (Wasmtime, WasmEdge, or Spin).
 
-Key advantages over traditional Linux containers:
+The headline advantage is image size. These are **measured** sizes from WasmDock's
+templates (built with `wasmdock build` on Docker Desktop 4.78), compared against
+`nginx:alpine` (27.4 MB):
 
-| Metric      | WASM Container | Linux Container |
-|-------------|---------------|-----------------|
-| Cold start  | ~1 ms         | ~300+ ms        |
-| Image size  | ~2 MB         | ~50-200 MB      |
-| Memory      | ~5 MB         | ~30-100 MB      |
-| Sandboxing  | Capability-based | Namespace/cgroup |
+| WasmDock template       | Toolchain | Image size | vs `nginx:alpine` |
+|-------------------------|-----------|-----------:|-------------------|
+| `http-server-wasmtime`  | Rust      |      33 KB | 841× smaller      |
+| `data-processor`        | Rust      |      61 KB | 461× smaller      |
+| `edge-function`         | Spin      |      99 KB | 284× smaller      |
+| `http-server-spin`      | Spin      |     111 KB | 252× smaller      |
+| `data-processor-go`     | TinyGo    |     216 KB | 130× smaller      |
+
+WASM containers also offer near-instant cold starts, a smaller memory footprint, and
+a capability-based sandbox on top of normal container isolation.
 
 ### Runtimes
 
