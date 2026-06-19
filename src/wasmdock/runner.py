@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 import docker
 from docker.errors import DockerException
@@ -68,8 +69,6 @@ class Runner:
 
     def run_from_dir(self, project_dir: str = ".", port: int = 8080) -> RunResult:
         """Load project config from a directory and run."""
-        from pathlib import Path
-
         path = Path(project_dir).resolve()
         config = load_project_config(path)
         if not config:
@@ -93,6 +92,23 @@ class Runner:
             console.print(f"[yellow]Container {container_id[:12]} stopped[/yellow]")
         except DockerException as exc:
             console.print(f"[red]Error stopping container: {exc}[/red]")
+
+    def stop_from_dir(self, project_dir: str = ".") -> None:
+        """Stop the container associated with a project directory."""
+        self.stop(self._container_name_from_dir(project_dir))
+
+    def logs_from_dir(self, project_dir: str = ".", tail: int = 100) -> str:
+        """Return logs for the container associated with a project directory."""
+        return self.logs(self._container_name_from_dir(project_dir), tail=tail)
+
+    @staticmethod
+    def _container_name_from_dir(project_dir: str) -> str:
+        """Resolve the deterministic container name from wasmdock.yml."""
+        path = Path(project_dir).resolve()
+        config = load_project_config(path)
+        if not config:
+            raise FileNotFoundError(f"No wasmdock.yml found in {path}")
+        return f"wasmdock-{config['name']}"
 
     def logs(self, container_id: str, tail: int = 100) -> str:
         """Retrieve recent logs from a container."""

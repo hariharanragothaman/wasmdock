@@ -124,6 +124,52 @@ def run(
     console.print(f"Listening on: http://localhost:{result.port}")
 
 
+# ── stop ────────────────────────────────────────────────────────────
+
+
+@app.command()
+def stop(
+    project_dir: Annotated[
+        str,
+        typer.Option("--project-dir", "-d", help="Path to wasmdock project"),
+    ] = ".",
+) -> None:
+    """Stop and remove the project's running WASM container."""
+    from wasmdock.runner import Runner
+
+    runner = Runner()
+    try:
+        runner.stop_from_dir(project_dir)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
+
+
+# ── logs ────────────────────────────────────────────────────────────
+
+
+@app.command()
+def logs(
+    tail: Annotated[
+        int,
+        typer.Option("--tail", "-n", help="Number of trailing log lines to show"),
+    ] = 100,
+    project_dir: Annotated[
+        str,
+        typer.Option("--project-dir", "-d", help="Path to wasmdock project"),
+    ] = ".",
+) -> None:
+    """Show recent logs from the project's WASM container."""
+    from wasmdock.runner import Runner
+
+    runner = Runner()
+    try:
+        console.print(runner.logs_from_dir(project_dir, tail=tail))
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
+
+
 # ── bench ───────────────────────────────────────────────────────────
 
 
@@ -205,6 +251,22 @@ def push(
     registry.push(image_name, target)
 
 
+# ── pull ────────────────────────────────────────────────────────────
+
+
+@app.command()
+def pull(
+    reference: Annotated[
+        str, typer.Argument(help="Image reference (e.g. ghcr.io/user/app:latest)")
+    ],
+) -> None:
+    """Pull a WASM image from an OCI registry."""
+    from wasmdock.registry import Registry
+
+    registry = Registry()
+    registry.pull(reference)
+
+
 # ── templates ───────────────────────────────────────────────────────
 
 
@@ -245,3 +307,15 @@ def runtimes() -> None:
         table.add_row(rt["name"], rt["display_name"], rt["containerd_runtime"], rt["description"])
 
     console.print(table)
+
+
+# ── doctor ──────────────────────────────────────────────────────────
+
+
+@app.command()
+def doctor() -> None:
+    """Check that the local Docker environment is ready for WASM containers."""
+    from wasmdock.doctor import Doctor
+
+    if not Doctor().report():
+        raise typer.Exit(1)
