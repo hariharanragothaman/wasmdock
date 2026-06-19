@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -31,7 +31,7 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def main(
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option("--version", "-v", callback=_version_callback, is_eager=True),
     ] = None,
 ) -> None:
@@ -71,8 +71,10 @@ def init(
     try:
         wasm_runtime = WasmRuntime(runtime)
     except ValueError:
-        console.print(f"[red]Unknown runtime '{runtime}'. Use: wasmtime, wasmedge, spin, slight[/red]")
-        raise typer.Exit(1)
+        console.print(
+            f"[red]Unknown runtime '{runtime}'. Use: wasmtime, wasmedge, spin, slight[/red]"
+        )
+        raise typer.Exit(1) from None
 
     scaffolder = Scaffolder()
     scaffolder.scaffold(name, wasm_runtime, language, template, output_dir)
@@ -132,11 +134,11 @@ def bench(
         typer.Option("--iterations", "-n", help="Number of benchmark iterations"),
     ] = 100,
     compare_linux: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--compare-linux", help="Linux image to compare against"),
     ] = None,
     output: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--output", "-o", help="HTML report output path"),
     ] = None,
     project_dir: Annotated[
@@ -166,9 +168,7 @@ def bench(
     benchmarker = Benchmarker()
 
     if compare_linux:
-        comparison = benchmarker.compare_with_linux(
-            project, compare_linux, iterations=iterations
-        )
+        comparison = benchmarker.compare_with_linux(project, compare_linux, iterations=iterations)
         if output:
             benchmarker.generate_report(comparison, output)
     else:

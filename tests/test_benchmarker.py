@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from wasmdock.benchmarker import Benchmarker
 from wasmdock.models import BenchmarkComparison, BenchmarkResult
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.fixture
@@ -101,9 +104,7 @@ class TestComparisonCalculation:
 
 
 class TestReportGeneration:
-    def test_generate_report_creates_html(
-        self, benchmarker: Benchmarker, tmp_path: Path
-    ) -> None:
+    def test_generate_report_creates_html(self, benchmarker: Benchmarker, tmp_path: Path) -> None:
         wasm = BenchmarkResult(
             runtime="wasmtime",
             cold_start_ms=12.5,
@@ -130,9 +131,7 @@ class TestReportGeneration:
         assert "plotly" in content.lower()
         assert "WasmDock Benchmark" in content
 
-    def test_print_comparison_runs_without_error(
-        self, benchmarker: Benchmarker
-    ) -> None:
+    def test_print_comparison_runs_without_error(self, benchmarker: Benchmarker) -> None:
         wasm = BenchmarkResult(
             runtime="wasmtime",
             cold_start_ms=15.0,

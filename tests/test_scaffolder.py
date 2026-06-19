@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from wasmdock.models import WasmRuntime
 from wasmdock.scaffolder import Scaffolder
@@ -21,9 +24,7 @@ def tmp_output(tmp_path: Path) -> Path:
 
 
 class TestScaffold:
-    def test_scaffold_creates_project_dir(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_creates_project_dir(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="my-app",
@@ -35,9 +36,7 @@ class TestScaffold:
         assert project.project_dir.is_dir()
         assert project.name == "my-app"
 
-    def test_scaffold_creates_dockerfile(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_creates_dockerfile(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="dock-test",
@@ -51,9 +50,7 @@ class TestScaffold:
         assert "wasm32-wasip1" in content
         assert "scratch" in content
 
-    def test_scaffold_creates_cargo_toml(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_creates_cargo_toml(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="cargo-test",
@@ -66,9 +63,7 @@ class TestScaffold:
         content = cargo.read_text()
         assert "cargo_test" in content
 
-    def test_scaffold_creates_source_files(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_creates_source_files(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="src-test",
@@ -79,9 +74,7 @@ class TestScaffold:
         main_rs = project.project_dir / "src" / "main.rs"
         assert main_rs.exists()
 
-    def test_scaffold_creates_wasmdock_yml(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_creates_wasmdock_yml(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="cfg-test",
@@ -107,9 +100,7 @@ class TestScaffold:
                 output_dir=str(tmp_output),
             )
 
-    def test_scaffold_spin_template(
-        self, scaffolder: Scaffolder, tmp_output: Path
-    ) -> None:
+    def test_scaffold_spin_template(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
         tmp_output.mkdir()
         project = scaffolder.scaffold(
             name="spin-app",

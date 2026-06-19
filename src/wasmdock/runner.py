@@ -98,7 +98,8 @@ class Runner:
         """Retrieve recent logs from a container."""
         try:
             container = self._client.containers.get(container_id)
-            return container.logs(tail=tail).decode("utf-8", errors="replace")
+            raw: bytes = container.logs(tail=tail)
+            return raw.decode("utf-8", errors="replace")
         except DockerException as exc:
             return f"Error retrieving logs: {exc}"
 
@@ -116,9 +117,7 @@ class Runner:
                 if status == "running":
                     return
                 if status in ("exited", "dead"):
-                    console.print(
-                        f"[yellow]Container exited with status: {status}[/yellow]"
-                    )
+                    console.print(f"[yellow]Container exited with status: {status}[/yellow]")
                     return
             except DockerException:
                 pass
