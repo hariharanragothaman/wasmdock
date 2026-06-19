@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 340" font-family="ui-monospace,'SF Mono','Cascadia Code','Fira Code',Menlo,Consolas,monospace">
+  <defs>
+    <style>
+      .t  { fill:#c9d1d9; font-size:14px; }
+      .dim{ fill:#8b949e; font-size:13px; }
+      .ok { fill:#3fb950; font-size:14px; font-weight:600; }
+      .cy { fill:#39c5cf; font-size:15px; font-weight:700; }
+      .wt { fill:#e6edf3; font-size:14px; }
+      .gp { fill:#3fb950; font-size:14px; font-weight:700; }
+    </style>
+  </defs>
+
+  <!-- window -->
+  <rect x="1" y="1" width="818" height="338" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  <!-- title bar -->
+  <path d="M1 11 a10 10 0 0 1 10 -10 h798 a10 10 0 0 1 10 10 v23 h-818 z" fill="#161b22"/>
+  <circle cx="22" cy="17" r="6" fill="#ff5f56"/>
+  <circle cx="42" cy="17" r="6" fill="#ffbd2e"/>
+  <circle cx="62" cy="17" r="6" fill="#27c93f"/>
+  <text x="410" y="22" text-anchor="middle" class="dim">wasmdock - zsh</text>
+
+  <!-- prompt -->
+  <text x="24" y="62" font-size="14"><tspan class="gp">$</tspan><tspan class="wt"> wasmdock doctor</tspan></text>
+
+  <!-- table title -->
+  <text x="410" y="92" text-anchor="middle" class="cy">WasmDock Doctor</text>
+
+  <!-- table grid -->
+  <g stroke="#30363d" stroke-width="1">
+    <rect x="28" y="104" width="764" height="38" fill="#161b22"/>
+    <rect x="28" y="104" width="764" height="156" fill="none"/>
+    <line x1="28" y1="142" x2="792" y2="142"/>
+    <line x1="28" y1="180" x2="792" y2="180"/>
+    <line x1="28" y1="218" x2="792" y2="218"/>
+    <line x1="232" y1="104" x2="232" y2="260"/>
+    <line x1="330" y1="104" x2="330" y2="260"/>
+  </g>
+
+  <!-- header -->
+  <text x="44"  y="128" class="t" font-weight="700">Check</text>
+  <text x="281" y="128" class="t" font-weight="700" text-anchor="middle">Status</text>
+  <text x="346" y="128" class="t" font-weight="700">Detail</text>
+
+  <!-- row 1 -->
+  <text x="44"  y="166" class="t">Docker daemon</text>
+  <text x="281" y="166" class="ok" text-anchor="middle">PASS</text>
+  <text x="346" y="166" class="t">Reachable (Server 27.0.0)</text>
+
+  <!-- row 2 -->
+  <text x="44"  y="204" class="t">containerd image store</text>
+  <text x="281" y="204" class="ok" text-anchor="middle">PASS</text>
+  <text x="346" y="204" class="t">Storage driver: overlayfs</text>
+
+  <!-- row 3 -->
+  <text x="44"  y="234" class="t">WASM runtime shims</text>
+  <text x="281" y="234" class="ok" text-anchor="middle">PASS</text>
+  <text x="346" y="234" class="t">Found: io.containerd.wasmtime.v1,</text>
+  <text x="346" y="252" class="t">io.containerd.spin.v2</text>
+
+  <!-- footer -->
+  <path d="M30 289 l5 6 l10 -13" fill="none" stroke="#3fb950" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="294" class="ok">Environment looks ready for WASM containers.</text>
+</svg>
