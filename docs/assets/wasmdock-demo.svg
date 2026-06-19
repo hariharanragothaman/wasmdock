@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 470" font-family="ui-monospace,'SF Mono','Cascadia Code','Fira Code',Menlo,Consolas,monospace">
+  <defs>
+    <style>
+      .t   { fill:#c9d1d9; font-size:14px; }
+      .dim { fill:#8b949e; font-size:13px; }
+      .ok  { fill:#3fb950; font-size:14px; }
+      .okb { fill:#3fb950; font-size:14px; font-weight:700; }
+      .wt  { fill:#e6edf3; font-size:14px; }
+      .cy  { fill:#39c5cf; font-size:14px; font-weight:700; }
+      .yl  { fill:#d29922; font-size:14px; font-weight:700; }
+      .gp  { fill:#3fb950; font-size:14px; font-weight:700; }
+    </style>
+  </defs>
+
+  <!-- window -->
+  <rect x="1" y="1" width="858" height="468" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  <!-- title bar -->
+  <path d="M1 11 a10 10 0 0 1 10 -10 h838 a10 10 0 0 1 10 10 v23 h-858 z" fill="#161b22"/>
+  <circle cx="22" cy="17" r="6" fill="#ff5f56"/>
+  <circle cx="42" cy="17" r="6" fill="#ffbd2e"/>
+  <circle cx="62" cy="17" r="6" fill="#27c93f"/>
+  <text x="430" y="22" text-anchor="middle" class="dim">wasmdock - zsh</text>
+
+  <!-- doctor -->
+  <text x="24" y="62"><tspan class="gp">$</tspan><tspan class="wt"> wasmdock doctor</tspan></text>
+  <path d="M30 79 l5 6 l10 -13" fill="none" stroke="#3fb950" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="84" class="ok">Docker daemon, containerd image store, and WASM runtimes ready.</text>
+
+  <!-- init -->
+  <text x="24" y="120"><tspan class="gp">$</tspan><tspan class="wt"> wasmdock init my-service --template http-server-wasmtime</tspan></text>
+  <text x="24" y="142" class="okb">Project scaffolded at ./my-service</text>
+
+  <!-- build -->
+  <text x="24" y="178"><tspan class="gp">$</tspan><tspan class="wt"> cd my-service &amp;&amp; wasmdock build</tspan></text>
+  <text x="24" y="200" class="okb">Built wasmdock-my-service:latest (0.03 MB) in 6.7s</text>
+
+  <!-- size comparison -->
+  <text x="24" y="236"><tspan class="gp">$</tspan><tspan class="wt"> docker image ls --format '{{.Repository}} {{.Size}}'</tspan></text>
+
+  <g stroke="#30363d" stroke-width="1">
+    <line x1="28" y1="252" x2="832" y2="252"/>
+  </g>
+  <text x="34"  y="274" class="dim">REPOSITORY</text>
+  <text x="430" y="274" class="dim" text-anchor="end">IMAGE SIZE</text>
+  <text x="600" y="274" class="dim">VS nginx:alpine (27.4 MB)</text>
+
+  <text x="34"  y="300" class="t">wasmdock-http-server-wasmtime</text>
+  <text x="430" y="300" class="cy" text-anchor="end">33 KB</text>
+  <text x="600" y="300" class="okb">841x smaller</text>
+
+  <text x="34"  y="324" class="t">wasmdock-data-processor</text>
+  <text x="430" y="324" class="cy" text-anchor="end">61 KB</text>
+  <text x="600" y="324" class="ok">461x smaller</text>
+
+  <text x="34"  y="348" class="t">wasmdock-edge-function</text>
+  <text x="430" y="348" class="cy" text-anchor="end">99 KB</text>
+  <text x="600" y="348" class="ok">284x smaller</text>
+
+  <text x="34"  y="372" class="t">wasmdock-http-server-spin</text>
+  <text x="430" y="372" class="cy" text-anchor="end">111 KB</text>
+  <text x="600" y="372" class="ok">252x smaller</text>
+
+  <text x="34"  y="396" class="t">wasmdock-data-processor-go (TinyGo)</text>
+  <text x="430" y="396" class="cy" text-anchor="end">216 KB</text>
+  <text x="600" y="396" class="ok">130x smaller</text>
+
+  <g stroke="#30363d" stroke-width="1">
+    <line x1="28" y1="414" x2="832" y2="414"/>
+  </g>
+  <text x="24" y="440" class="dim">Real images built with `wasmdock build` on Docker Desktop 4.78 (containerd image store).</text>
+  <text x="24" y="458" class="dim">A scratch-based WASM image is a few KB; the Linux baseline is tens of MB.</text>
+</svg>

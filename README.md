@@ -7,6 +7,8 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+![wasmdock end-to-end demo: doctor, init, build, and measured image sizes](docs/assets/wasmdock-demo.svg)
+
 ---
 
 ## Motivation
@@ -25,14 +27,18 @@ Full documentation: **https://hariharanragothaman.github.io/wasmdock/**
 
 ## Why WASM Containers?
 
-Docker Desktop 4.15+ supports running WebAssembly workloads natively alongside Linux containers. WASM containers offer dramatic improvements over traditional containers:
+Docker Desktop 4.15+ supports running WebAssembly workloads natively alongside Linux containers. The headline win is **image size** — and these are real, measured numbers from WasmDock's own templates (built on Docker Desktop 4.78 with the containerd image store), compared against `nginx:alpine` (**27.4 MB**):
 
-| Metric          | WASM Container | Linux Container | Improvement     |
-|-----------------|---------------|-----------------|-----------------|
-| Cold start      | ~1 ms         | ~300 ms         | 300x faster     |
-| Image size      | ~2 MB         | ~50-200 MB      | 25-100x smaller |
-| Memory footprint| ~5 MB         | ~30-100 MB      | 6-20x less      |
-| Security        | Capability-based sandbox | Namespace isolation | Stronger by default |
+| WasmDock template            | Toolchain | Image size | vs `nginx:alpine` |
+|------------------------------|-----------|-----------:|-------------------|
+| `http-server-wasmtime`       | Rust      |   **33 KB**| 841× smaller      |
+| `data-processor`             | Rust      |     61 KB  | 461× smaller      |
+| `edge-function`              | Spin      |     99 KB  | 284× smaller      |
+| `http-server-spin`           | Spin      |    111 KB  | 252× smaller      |
+| `data-processor-go`          | TinyGo    |    216 KB  | 130× smaller      |
+
+Beyond size, WASM containers also offer near-instant cold starts, a smaller memory
+footprint, and a capability-based sandbox on top of normal container isolation.
 
 WasmDock gives you a batteries-included toolkit to take advantage of these improvements without wrestling with low-level toolchain configuration.
 
@@ -272,20 +278,27 @@ wasmdock init my-edge --template edge-function --runtime spin
 wasmdock bench --iterations 50 --compare-linux nginx:alpine --output report.html
 ```
 
-Sample output:
+### Measured image size
 
-```
-+-------------+-------------------+-------------------+----------------+
-| Metric      | WASM (wasmtime)   | Linux             | Improvement    |
-+-------------+-------------------+-------------------+----------------+
-| Cold Start  |           1.2 ms  |         312.5 ms  | 260.4x faster  |
-| Memory      |           4.8 MB  |          48.2 MB  | 90% less       |
-| Throughput   |         1,240 rps |         1,180 rps | -              |
-| Image Size  |           1.8 MB  |          42.0 MB  | 96% smaller    |
-+-------------+-------------------+-------------------+----------------+
-```
+These figures are **real**, produced by building the templates with `wasmdock build`
+on Docker Desktop 4.78 (containerd image store) and reading `docker image inspect`,
+compared against `nginx:alpine` (27.4 MB):
 
-The `--output` flag generates an interactive HTML report with Plotly bar charts comparing all metrics side-by-side.
+| Template                | WASM image | Linux baseline | Reduction      |
+|-------------------------|-----------:|---------------:|----------------|
+| `http-server-wasmtime`  |      33 KB |        27.4 MB | 841× (99.88%)  |
+| `data-processor`        |      61 KB |        27.4 MB | 461× (99.78%)  |
+| `edge-function`         |      99 KB |        27.4 MB | 284× (99.65%)  |
+| `http-server-spin`      |     111 KB |        27.4 MB | 252× (99.60%)  |
+| `data-processor-go`     |     216 KB |        27.4 MB | 130× (99.23%)  |
+
+### Cold start, memory & throughput
+
+`wasmdock bench` also measures cold-start latency, memory footprint, and throughput,
+and `--output` renders an interactive Plotly HTML report. Those runtime metrics
+require executing the containers; capturing them here is pending a Docker Desktop
+wasm-runtime fix (see issue #20), so they are intentionally **not** quoted as
+measured numbers yet.
 
 ## Supported Runtimes
 

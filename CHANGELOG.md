@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Measured image-size benchmarks in the README/docs (real numbers vs
+  `nginx:alpine`) and an end-to-end demo SVG (`doctor → init → build`).
 - `wasmdock doctor` command to diagnose the Docker WASM environment.
 - `wasmdock stop`, `wasmdock logs`, `wasmdock pull` commands.
 - `wasmdock ps` and `wasmdock clean` commands.
