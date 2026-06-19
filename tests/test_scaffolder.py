@@ -87,6 +87,22 @@ class TestScaffold:
         content = config_path.read_text()
         assert "spin" in content
 
+    def test_scaffold_go_template(self, scaffolder: Scaffolder, tmp_output: Path) -> None:
+        tmp_output.mkdir()
+        project = scaffolder.scaffold(
+            name="go-proc",
+            runtime=WasmRuntime.WASMTIME,
+            language="go",
+            template="data-processor-go",
+            output_dir=str(tmp_output),
+        )
+        assert (project.project_dir / "go.mod").exists()
+        assert (project.project_dir / "main.go").exists()
+        dockerfile = (project.project_dir / "Dockerfile").read_text()
+        assert "tinygo" in dockerfile
+        assert "target=wasip1" in dockerfile
+        assert "module go_proc" in (project.project_dir / "go.mod").read_text()
+
     def test_scaffold_rejects_incompatible_runtime(
         self, scaffolder: Scaffolder, tmp_output: Path
     ) -> None:

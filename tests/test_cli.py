@@ -49,6 +49,15 @@ class TestMetaCommands:
         assert result.exit_code == 0
         assert (tmp_path / "spinapp" / "wasmdock.yml").read_text().find("spin") != -1
 
+    def test_init_infers_go_language_from_template(self, tmp_path: Path) -> None:
+        result = runner.invoke(
+            app, ["init", "goapp", "--template", "data-processor-go", "-o", str(tmp_path)]
+        )
+        assert result.exit_code == 0
+        config = (tmp_path / "goapp" / "wasmdock.yml").read_text()
+        assert "language: go" in config
+        assert "runtime: wasmtime" in config
+
     def test_init_rejects_incompatible_runtime(self, tmp_path: Path) -> None:
         result = runner.invoke(
             app,
