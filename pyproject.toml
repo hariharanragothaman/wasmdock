@@ -59,6 +59,7 @@ packages = ["src/wasmdock"]
 # in the wheel. Hatchling only auto-includes .py files, so include them here.
 artifacts = [
     "src/wasmdock/templates/**/*.j2",
+    "src/wasmdock/py.typed",
 ]
 
 [tool.ruff]
