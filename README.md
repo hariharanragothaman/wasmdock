@@ -3,6 +3,7 @@
 **Scaffold, build, run, and benchmark WebAssembly containers with Docker's native WASM runtime.**
 
 [![CI](https://github.com/hariharanragothaman/wasmdock/actions/workflows/ci.yml/badge.svg)](https://github.com/hariharanragothaman/wasmdock/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/hariharanragothaman/wasmdock/branch/main/graph/badge.svg)](https://codecov.io/gh/hariharanragothaman/wasmdock)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -176,6 +177,8 @@ gate CI or a setup script.
 ```bash
 wasmdock doctor
 ```
+
+![wasmdock doctor output](docs/assets/wasmdock-doctor.svg)
 
 ## Template Gallery
 
