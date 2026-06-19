@@ -96,12 +96,25 @@ You can also invoke the CLI as a module: `python -m wasmdock --help`.
 
 Scaffold a new WASM project from a template.
 
-| Option         | Default               | Description                                   |
-|----------------|-----------------------|-----------------------------------------------|
-| `--runtime`    | `wasmtime`            | WASM runtime: wasmtime, wasmedge, spin, slight|
-| `--language`   | `rust`                | Source language                                |
-| `--template`   | `http-server-wasmtime`| Project template                              |
-| `--output-dir` | `.`                   | Parent directory for the new project           |
+| Option         | Default                | Description                                    |
+|----------------|------------------------|------------------------------------------------|
+| `--runtime`    | template's runtime     | WASM runtime: wasmtime, wasmedge, spin, slight |
+| `--language`   | `rust`                 | Source language                                |
+| `--template`   | `http-server-wasmtime` | Project template                               |
+| `--output-dir` | `.`                    | Parent directory for the new project           |
+
+If `--runtime` is omitted, the runtime the template targets is used. Passing a
+runtime that is incompatible with the template (e.g. `--template http-server-spin
+--runtime wasmtime`) is rejected with a helpful error.
+
+### Shell completion
+
+WasmDock ships shell completion (bash/zsh/fish/PowerShell), courtesy of Typer:
+
+```bash
+wasmdock --install-completion   # install for your current shell
+wasmdock --show-completion      # print the script instead
+```
 
 ### `wasmdock build`
 

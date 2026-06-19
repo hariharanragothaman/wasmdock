@@ -87,6 +87,18 @@ class TestScaffold:
         content = config_path.read_text()
         assert "spin" in content
 
+    def test_scaffold_rejects_incompatible_runtime(
+        self, scaffolder: Scaffolder, tmp_output: Path
+    ) -> None:
+        tmp_output.mkdir()
+        with pytest.raises(ValueError, match="targets the 'spin' runtime"):
+            scaffolder.scaffold(
+                name="bad-combo",
+                runtime=WasmRuntime.WASMTIME,
+                template="http-server-spin",
+                output_dir=str(tmp_output),
+            )
+
     def test_scaffold_refuses_existing_directory(
         self, scaffolder: Scaffolder, tmp_output: Path
     ) -> None:

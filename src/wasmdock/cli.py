@@ -45,9 +45,13 @@ def main(
 def init(
     name: Annotated[str, typer.Argument(help="Project name")],
     runtime: Annotated[
-        str,
-        typer.Option("--runtime", "-r", help="WASM runtime (wasmtime/wasmedge/spin/slight)"),
-    ] = "wasmtime",
+        str | None,
+        typer.Option(
+            "--runtime",
+            "-r",
+            help="WASM runtime (defaults to the template's runtime)",
+        ),
+    ] = None,
     language: Annotated[
         str,
         typer.Option("--language", "-l", help="Source language"),
@@ -67,6 +71,16 @@ def init(
 ) -> None:
     """Scaffold a new WASM project."""
     from wasmdock.scaffolder import Scaffolder
+    from wasmdock.templates import TEMPLATE_REGISTRY
+
+    if template not in TEMPLATE_REGISTRY:
+        available = ", ".join(TEMPLATE_REGISTRY)
+        console.print(f"[red]Unknown template '{template}'. Available: {available}[/red]")
+        raise typer.Exit(1)
+
+    # When no runtime is given, infer the one the template targets.
+    if runtime is None:
+        runtime = TEMPLATE_REGISTRY[template]["runtime"]
 
     try:
         wasm_runtime = WasmRuntime(runtime)
@@ -77,7 +91,11 @@ def init(
         raise typer.Exit(1) from None
 
     scaffolder = Scaffolder()
-    scaffolder.scaffold(name, wasm_runtime, language, template, output_dir)
+    try:
+        scaffolder.scaffold(name, wasm_runtime, language, template, output_dir)
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
 
 
 # ── build ───────────────────────────────────────────────────────────
