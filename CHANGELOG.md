@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `wasmdock run` is now idempotent (replaces an existing project container).
 
 ### Fixed
+- `wasmdock build` now runs through the Docker CLI (BuildKit) instead of the
+  legacy docker-py build API, which did not populate `$BUILDPLATFORM` and made
+  every multi-stage template build fail. Verified end-to-end against Docker
+  Desktop with WASM enabled.
+- Bumped the Rust template base image `1.79` → `1.86` (the `spin-sdk`/`url`
+  dependency trees now require `edition2024` and rustc ≥ 1.86).
+- Added the missing `anyhow` dependency to the Spin and edge-function templates.
+- Fixed the TinyGo template to write its build output to the work dir (the
+  TinyGo image runs as a non-root user and cannot write to `/`).
 - Packaging metadata (invalid trove classifier; wheel template duplication).
 - Linting, formatting, typing, and a flaky build-time test so CI is green.
 
